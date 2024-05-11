@@ -42,6 +42,7 @@ Where:
 
 - `dk` for DraftKings. Note for DraftKings, players are output in alphabetical order and must be re-ordered into their positions before uploading back to DK.
 - `fd` for FanDuel. Note for FanDuel, you must also run `python .\name_change.py` before any crunching, as some player names differ between Awesemo projections and FanDuel's player data
+- `ikb` for ikb.gg. We're using fuzzy matching to try to match up names best, but if you run into any errors you may need to manually check the print outputs to find which names aren't matching.
 
 `<process>` is:
 
@@ -124,3 +125,17 @@ Data is stored in the `output/` directory. Note that subsequent runs of the tool
 ### `sim` Process
 
 ![Example output](readme_images/sim_output.png)
+
+### IMPORTANT NOTES
+
+We both come from web3/software backgrounds and we believe in the power of open source tools and collaboration. This version of our simulation modules will **always** be provided for free for all sports that we offer on GitHub.
+
+Tips and donations are, of course, greatly appreciated:
+
+PayPal: [![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate/?hosted_button_id=NALW2B8ZMTCG8)
+
+Ethereum Address:
+
+![Eth Wallet QR Code](readme_images/eth_qr_code.png)
+
+0x2D62C15849ddC68DDB2F9dFBC426f0bF46eaE006
