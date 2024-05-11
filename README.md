@@ -42,7 +42,7 @@ Where:
 
 - `dk` for DraftKings. Note for DraftKings, players are output in alphabetical order and must be re-ordered into their positions before uploading back to DK.
 - `fd` for FanDuel. Note for FanDuel, you must also run `python .\name_change.py` before any crunching, as some player names differ between Awesemo projections and FanDuel's player data
-- `ikb` for ikb.gg. We're using fuzzy matching to try to match up names best, but if you run into any errors you may need to manually check the print outputs to find which names aren't matching.
+- `ikb` for ikb.gg. We're using fuzzy matching to try to match up names as best we can, but if you run into any errors you may need to manually check the print outputs to find which names aren't matching.
 
 `<process>` is:
 
