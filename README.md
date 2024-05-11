@@ -17,6 +17,7 @@ If you're lazy and don't like reading, you can check this video which covers _mo
   - [timedelta](https://pypi.org/project/timedelta/) - `pip install timedelta`. This package makes it easy to interpret dates for late swaptimizing lineups.
   - [pytz](https://pypi.org/project/pytz/) - `pip install pytz`. Another helpful package for interpreting dates and late swaptimizing
   - [numpy](https://pypi.org/project/numpy/) - `pip install numpy`. This package makes data manipulation and handling matrices easier.
+  - [thefuzz](https://pypi.org/project/thefuzz/) - `pip install thefuzz`. This package enables fuzzy matching.
 
 To install these tools, you may either clone this repository or download the repository as a ZIP file (see image below) and extract it to the directory of your choosing.
 
