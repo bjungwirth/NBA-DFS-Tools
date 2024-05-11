@@ -22,9 +22,9 @@ To install these tools, you may either clone this repository or download the rep
 
 ![Download image](readme_images/download.png)
 
-After you have cloned or downloaded the code base, you must import player contest data from DraftKings or FanDuel. Reference the screenshots below for your relative site. You will need to rename these files to `player_ids.csv`, and place into their relative directory (`dk_data/` or `fd_data/`). These directories should be folders located in the same directory as `src/` and `output/`, and will hold relevant data for each site.
+After you have cloned or downloaded the code base, you must import player contest data from DraftKings or FanDuel. Reference the screenshots below for your relative site. You will need to rename these files to the name provided in the `player_path` config, and place into their relative directory (`dk_data/` or `fd_data/` or `ikb_data`). These directories should be folders located in the same directory as `src/` and `output/`, and will hold relevant data for each site.
 
-After you have the player data, you must import data from Awesemo, namely the projections, ownership, boom/bust tool. Download them as CSV, and rename them to match the image below. These will go in either `dk_data/` or `fd_data/` depending on which data you downloaded.
+After you have the player data, you must import your projections and place them in the relevant site's _data folder. The format for the projeciton file is `name,team,fpts,stddev,ownership,minutes`
 
 ![Directory image](readme_images/directory.png)
 
@@ -125,6 +125,10 @@ Data is stored in the `output/` directory. Note that subsequent runs of the tool
 ### `sim` Process
 
 ![Example output](readme_images/sim_output.png)
+
+### Simulation Methodology
+
+We assume player fantasy point distributions are [multivariate gaussian](https://en.wikipedia.org/wiki/Multivariate_normal_distribution) and create [monte carlo simulations](https://en.wikipedia.org/wiki/Monte_Carlo_method) using the provided fantasy point projections, standard deviations and player correlations. For the lineup generation process, we take the provided `tournament_lineups.csv` file (if `file` is provided as an argument in the terminal) and then sample from the provided ownership projections to fill the rest of the contest, using the field size provided in the `contest_structure.csv` file. The `max_pct_off_optimal` configuration allows the user to be specific about which generated lineups are kept and which are thrown out, based on the lineup's total projected fantasy points. Once the lineups are generated and the simulated fantasy point distributions are created, we determine the rank of each lineup for each sim and then allocate prize money based on the values provided in the `contest_structure.csv` file.
 
 ### IMPORTANT NOTES
 
