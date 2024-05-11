@@ -5,6 +5,7 @@ import sys
 from nba_optimizer import *
 from windows_inhibitor import *
 from nba_late_swaptimizer import *
+from nba_optimizer_ikb import * 
 
 def main(arguments):
     if len(arguments) < 3 or len(arguments) > 7:
@@ -15,11 +16,18 @@ def main(arguments):
     process = arguments[2]
 
     if process == 'opto':
-        num_lineups = arguments[3]
-        num_uniques = arguments[4]
-        opto = NBA_Optimizer(site, num_lineups, num_uniques)
-        opto.optimize()
-        opto.output()
+        if site == 'ikb':
+            num_lineups = arguments[3]
+            num_uniques = arguments[4]
+            opto = NBA_Optimizer_IKB(site, num_lineups, num_uniques)
+            opto.optimize()
+            opto.output()
+        else:
+            num_lineups = arguments[3]
+            num_uniques = arguments[4]
+            opto = NBA_Optimizer(site, num_lineups, num_uniques)
+            opto.optimize()
+            opto.output()
         
     if process == 'swap':
         num_uniques = arguments[3]
