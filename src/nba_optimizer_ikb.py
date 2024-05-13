@@ -402,10 +402,9 @@ class NBA_Optimizer_IKB:
             import csv
             writer = csv.writer(f)
             # Write headers
-            headers = ["Player1",  "Player2", "Player3", "Player4", "Player5", "Player6", "Player7",  "Player1_ID", "Player2_ID",  "Player3_ID",
-                     "Player4_ID",  "Player5_ID",  "Player6_ID",
-                     "Player7_ID", "Salary", "Fpts Proj", "Own. Prod.", "Own. Sum.",
-                    "Minutes", "StdDev"]
+            headers = ["Player1_ID", "Player2_ID",  "Player3_ID", "Player4_ID",  "Player5_ID",  "Player6_ID", "Player7_ID",
+                       "Player1",  "Player2", "Player3", "Player4", "Player5", "Player6", "Player7",   
+                     "Salary", "Fpts Proj", "Own. Prod.", "Own. Sum.", "Minutes", "StdDev"]
             writer.writerow(headers)
 
             # Process each lineup
@@ -419,8 +418,8 @@ class NBA_Optimizer_IKB:
                     player_data = self.player_dict[p]
                     names.append(player_data["Name"])
                     ids.append(player_data['ID'])
-                row.extend(names)
                 row.extend(ids)
+                row.extend(names)
                 # Calculate lineup stats
                 salary = sum(self.player_dict[player[0]]["Salary"] for player in lineup)
                 fpts_p = sum(self.player_dict[player[0]]["Fpts"] for player in lineup)
