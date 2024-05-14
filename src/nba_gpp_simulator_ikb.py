@@ -168,6 +168,8 @@ class NBA_GPP_Simulator:
                 player_name = p['name']
                 player_id = p['id']
                 team = p['teamabbrev']
+                if team == 'NY':
+                    team = 'NYK'
                 salary = int(p['salary'])
                 self.id_name_dict[str(player_id)] = player_name
                 #get opposing team from self.matchups
