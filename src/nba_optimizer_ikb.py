@@ -84,6 +84,8 @@ class NBA_Optimizer_IKB:
                 player_name = p['name']
                 player_id = p['id']
                 team = p['teamabbrev']
+                if team =='NY':
+                    team = 'NYK'
                 salary = int(p['salary'])
                 self.player_dict[(fixed_name, team)] = {
                     "Fpts": 0.0,
