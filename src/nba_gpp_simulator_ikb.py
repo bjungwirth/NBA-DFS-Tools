@@ -151,6 +151,7 @@ class NBA_GPP_Simulator:
                 )
                 self.player_dict.pop(p)
             if len(s['Position']) == 0:
+                #print(p,s)
                 print(
                     s["Name"]
                     + " has no position, excluding from player_dict"

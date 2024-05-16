@@ -560,6 +560,7 @@ class nba_showdown_simulator:
                         'Position': pos,
                         'fieldFpts' : 1.5*fieldFpts,
                         'rosterPosition' : 'CPT',
+                        'idName': player_name
                     }
                     player_data = {
                         'Fpts': fpts,
@@ -574,6 +575,7 @@ class nba_showdown_simulator:
                         'rosterPosition' : 'UTIL',
                         "Correlations": corr,
                         "Player Correlations": {},
+                        'idName': player_name
                     }
                     self.player_dict[(player_name, "UTIL", team)] = player_data
                     self.teams_dict[team].append(player_data)
@@ -735,18 +737,28 @@ class nba_showdown_simulator:
                     continue
                 lu = lineup if self.site == "dk" else un_key_lu
                 if not error:
-                    self.field_lineups[j] = {
-                        "Lineup": {
-                            "Lineup": lu,
+                    lineup_list = sorted(lineup)           
+                    lineup_set = frozenset(lineup_list)
+
+                    # Keeping track of lineup duplication counts
+                    if lineup_set in self.seen_lineups:
+                        self.seen_lineups[lineup_set] += 1
+                    else:
+                        self.field_lineups[j] = {
+                            "Lineup": lineup,
                             "Wins": 0,
                             "Top10": 0,
                             "ROI": 0,
                             "Cashes": 0,
-                            "Type": "input",
-                        },
-                        "count": 1,
-                    }
-                    j += 1
+                            "Type": "opto",
+                            "Count": 1,
+                        }
+
+                        # Add to seen_lineups and seen_lineups_ix
+                        self.seen_lineups[lineup_set] = 1
+                        self.seen_lineups_ix[lineup_set] = j
+
+                        j+=1 
         print("loaded {} lineups".format(j))
         # print(self.field_lineups)
 
@@ -1011,6 +1023,7 @@ class nba_showdown_simulator:
                     "ROI": 0,
                     "Cashes": 0,
                     "Type": "generated",
+                    "Count": 0
                 }
                 break
         return lus
@@ -1178,14 +1191,14 @@ class nba_showdown_simulator:
         nk = new_keys[0]
         for i, o in enumerate(output):
             lineup_list = sorted(next(iter(o.values()))["Lineup"])
-            lineup_set = frozenset(lineup_list)  # Convert the list to a frozenset
+            lineup_set = frozenset(lineup_list)
 
             # Keeping track of lineup duplication counts
             if lineup_set in self.seen_lineups:
                 self.seen_lineups[lineup_set] += 1
 
                 # Increase the count in field_lineups using the index stored in seen_lineups_ix
-                self.field_lineups[self.seen_lineups_ix[lineup_set]]["count"] += 1
+                self.field_lineups[self.seen_lineups_ix[lineup_set]]["Count"] += 1
             else:
                 self.seen_lineups[lineup_set] = 1
 
@@ -1193,11 +1206,11 @@ class nba_showdown_simulator:
                 if nk in self.field_lineups.keys():
                     print("bad lineups dict, please check dk_data files")
                 else:
-                    self.field_lineups[nk] = {
-                        "Lineup": next(iter(o.values())),
-                        "count": self.seen_lineups[lineup_set],
-                    }
+                    sorted_lineup = next(iter(o.values()))["Lineup"]
 
+                    self.field_lineups[nk] = next(iter(o.values()))
+                    self.field_lineups[nk]["Lineup"] = sorted_lineup
+                    self.field_lineups[nk]["Count"] += self.seen_lineups[lineup_set]
                     # Store the new nk in seen_lineups_ix for quick access in the future
                     self.seen_lineups_ix[lineup_set] = nk
                     nk += 1
@@ -1305,7 +1318,8 @@ class nba_showdown_simulator:
         # fig, (ax1, ax2, ax3,ax4) = plt.subplots(4, figsize=(15, 25))
         # fig.tight_layout(pad=5.0)
 
-        # for i, player in enumerate(game):
+        #for i, player in enumerate(game):
+        #    print(f'player data is {player}')
         #     sns.kdeplot(player_samples[i], ax=ax1, label=player['Name'])
 
         # ax1.legend(loc='upper right', fontsize=14)
@@ -1417,7 +1431,7 @@ class nba_showdown_simulator:
 
                     # Fetch the CPT data using the player_name and team fetched from the above step
                     player_data_cpt = self.player_dict.get(
-                        (player_data_UTIL["Name"], "CPT", team)
+                        (player_data_UTIL["idName"], "CPT", team)
                     )
                     if player_data_cpt:
                         cpt_outcomes = UTIL_outcomes * 1.5
@@ -1442,19 +1456,19 @@ class nba_showdown_simulator:
 
                     # Fetch the CPT data using the player_name and team fetched from the above step
                     player_data_mvp = self.player_dict.get(
-                        (player_data_UTIL["Name"], "MVP", team)
+                        (player_data_UTIL["idName"], "MVP", team)
                     )
                     if player_data_mvp:
                         mvp_outcomes = UTIL_outcomes * 2
                         mvp_dict[player_data_mvp["UniqueKey"]] = mvp_outcomes
                     player_data_star = self.player_dict.get(
-                        (player_data_UTIL["Name"], "STAR", team)
+                        (player_data_UTIL["idName"], "STAR", team)
                     )
                     if player_data_star:
                         star_outcomes = UTIL_outcomes * 1.5
                         mvp_dict[player_data_star["UniqueKey"]] = star_outcomes
                     player_data_pro = self.player_dict.get(
-                        (player_data_UTIL["Name"], "PRO", team)
+                        (player_data_UTIL["idName"], "PRO", team)
                     )
                     if player_data_pro:
                         pro_outcomes = UTIL_outcomes * 1.2
@@ -1493,19 +1507,21 @@ class nba_showdown_simulator:
         # print(payout_array)
         # print(self.player_dict[('patrick mahomes', 'UTIL', 'KC')])
         field_lineups_count = np.array(
-            [self.field_lineups[idx]["count"] for idx in self.field_lineups.keys()]
+            [self.field_lineups[idx]["Count"] for idx in self.field_lineups.keys()]
         )
-
+        
+        #print(temp_fpts_dict.keys())
         #print(self.player_dict)
         for index, values in self.field_lineups.items():
             try:
                 fpts_sim = sum(
-                    [temp_fpts_dict[player] for player in values["Lineup"]["Lineup"]]
+                    [temp_fpts_dict[player] for player in values["Lineup"]]
                 )
             except KeyError:
-                for player in values["Lineup"]["Lineup"]:
+                for player in values["Lineup"]:
                     if player not in temp_fpts_dict.keys():
-                        print(player)
+                        print(f'lineup player not in temp_fpts_dict {player}')
+                        #print(player)
                         # for k,v in self.player_dict.items():
                         # if v['ID'] == player:
                         #        print(k,v)
@@ -1558,18 +1574,18 @@ class nba_showdown_simulator:
         for idx, roi in enumerate(combined_result_array):
             lineup_key = index_to_key[idx]
             lineup_count = self.field_lineups[lineup_key][
-                "count"
+                "Count"
             ]  # Assuming "Count" holds the count of the lineups
             total_sum += roi * lineup_count
-            self.field_lineups[lineup_key]["Lineup"]["ROI"] += roi
+            self.field_lineups[lineup_key]["ROI"] += roi
 
         for idx in self.field_lineups.keys():
             if idx in wins:
-                self.field_lineups[idx]["Lineup"]["Wins"] += win_counts[
+                self.field_lineups[idx]["Wins"] += win_counts[
                     np.where(wins == idx)
                 ][0]
             if idx in t10:
-                self.field_lineups[idx]["Lineup"]["Top10"] += t10_counts[
+                self.field_lineups[idx]["Top10"] += t10_counts[
                     np.where(t10 == idx)
                 ][0]
 
@@ -1587,8 +1603,8 @@ class nba_showdown_simulator:
         for index, data in self.field_lineups.items():
             # if index == 0:
             #    print(data)
-            lineup = data["Lineup"]["Lineup"]
-            lineup_data = data["Lineup"]
+            lineup = data["Lineup"]
+            lineup_data = data
             lu_type = lineup_data["Type"]
 
             salary = 0
@@ -1652,7 +1668,7 @@ class nba_showdown_simulator:
             win_p = round(lineup_data["Wins"] / self.num_iterations * 100, 2)
             top10_p = round(lineup_data["Top10"] / self.num_iterations * 100, 2)
             cash_p = round(lineup_data["Cashes"] / self.num_iterations * 100, 2)
-            num_dupes = data["count"]
+            num_dupes = data["Count"]
             if self.use_contest_data:
                 roi_p = round(
                     lineup_data["ROI"] / self.entry_fee / self.num_iterations * 100, 2
@@ -1686,20 +1702,20 @@ class nba_showdown_simulator:
 
             for val in self.field_lineups.values():
                 lineup_data = val["Lineup"]
-                counts = val["count"]
-                for player_id in lineup_data["Lineup"]:
+                counts = val["Count"]
+                for player_id in lineup_data:
                     if player_id not in unique_players:
                         unique_players[player_id] = {
-                            "Wins": lineup_data["Wins"],
-                            "Top10": lineup_data["Top10"],
-                            "In": val["count"],
-                            "ROI": lineup_data["ROI"],
+                            "Wins": val["Wins"],
+                            "Top10": val["Top10"],
+                            "In": val["Count"],
+                            "ROI": val["ROI"],
                         }
                     else:
-                        unique_players[player_id]["Wins"] += lineup_data["Wins"]
-                        unique_players[player_id]["Top10"] += lineup_data["Top10"]
-                        unique_players[player_id]["In"] += val["count"]
-                        unique_players[player_id]["ROI"] += lineup_data["ROI"]
+                        unique_players[player_id]["Wins"] += val["Wins"]
+                        unique_players[player_id]["Top10"] += val["Top10"]
+                        unique_players[player_id]["In"] += val["Count"]
+                        unique_players[player_id]["ROI"] += val["ROI"]
 
             for player_id, data in unique_players.items():
                 field_p = round(data["In"] / self.field_size * 100, 2)
